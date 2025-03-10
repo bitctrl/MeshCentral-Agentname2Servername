@@ -6,19 +6,21 @@
  * 
  * @author  Daniel Hammerschmidt <daniel.hammerschmidt@bitctrl.de>
  * @author  Daniel Hammerschmidt <daniel@redneck-engineering.com>
- * @version 0.0.1
+ * @version 0.0.2
  *********************************************************************/
 
 const { getPluginShortName, getPluginConfig, requirePluginHooks } = require('../pluginhookscheduler');
 
 const PLUGIN_SHORT_NAME = getPluginShortName(__dirname);
-const pluginConfig = getPluginConfig(PLUGIN_SHORT_NAME, () => ({ meshes: [] }));
+const pluginConfig = getPluginConfig(PLUGIN_SHORT_NAME, () => ({}));
+pluginConfig.include = new Set(pluginConfig.include);
+pluginConfig.exclude = new Set(pluginConfig.exclude);
 
 requirePluginHooks('hook_afterCreateMeshAgent');
 
 let meshserver, webserver;
 
-const kUndo = Symbol(PLUGIN_SHORT_NAME + '/undo');
+const kReset = Symbol(PLUGIN_SHORT_NAME + '/reset');
 
 module.exports = {
   [PLUGIN_SHORT_NAME]: function (pluginHandler) {
@@ -28,22 +30,35 @@ module.exports = {
         webserver = meshserver.webserver;
       },
       hook_afterCreateMeshAgent(meshagent, parent, db, ws, req, args, domain) {
+        const { include, exclude } = pluginConfig;
+        let busy = 0;
+        // let ii = 0;
         ws.on('message', function listener(data) {
-          const mesh = webserver.meshes[meshagent.dbMeshKey];
-          if (mesh === undefined) { return; }
-          if (meshagent.authenticated < 2) {
-            if (!meshagent.agentName || (pluginConfig.meshes.indexOf(meshagent.meshid) === -1 && pluginConfig.meshes.indexOf(mesh.name) === -1)) {
-              return void ws.off('message', listener);
-            }  
-            meshagent[kUndo] = { undo: true };
-            mesh.flags |= 2;
-            meshagent.agentInfo.computerName = meshagent.agentName;
-          } else if (meshagent[kUndo]?.undo === true) {
-            meshagent[kUndo].undo = false;
-            delete meshagent[kUndo];
-            mesh.flags &= ~2;
+          const { authenticated, agentName, dbMeshKey, dbNodeKey } = meshagent;
+          if (authenticated < 1) { return; }
+          // console.log(++ii, busy, authenticated, [data[0],data[1],data[2],data[3]], meshagent.dbMeshKey, meshagent.dbNodeKey);
+          if (this[kReset]?.mesh?.flags && !--busy) { this[kReset].mesh.flags &= ~2; }
+          if (authenticated > 1) { return void ws.off('message', listener); }
+          try {
+            const mesh = webserver.meshes[dbMeshKey];
+            const domain = dbMeshKey.split('/')[1];
+            const keys = [dbMeshKey, dbNodeKey, 'mesh/' + domain + '/' + mesh.name, 'node/' + domain + '/' + agentName ];
+            const white = include.size == 0 || keys.some((key)=>(include.has(key)));
+            const black = keys.some((key)=>(exclude.has(key)));
+            // console.log(keys);
+            // console.log(include);
+            // console.log(exclude);
+            // console.log([white, black, white && !black]);
+            if (white && !black) {
+              ++busy;
+              this[kReset] = { mesh };
+              mesh.flags |= 2;
+              meshagent.agentInfo.computerName = agentName;
+            }
+            void(0);
+          } catch (_) {
+            ws.off('message', listener);
           }
-          ws.off('message', listener);
         });
         return meshagent;
       },

@@ -1,7 +1,7 @@
 {
   "name": "Agent name 2 Server name",
   "shortName": "agentname2servername",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Daniel Hammerschmidt",
   "description": "Synchronize the agent name (--agentName) to the display name on the server.",
   "hasAdminPanel": false,

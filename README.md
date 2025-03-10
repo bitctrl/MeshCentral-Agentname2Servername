@@ -24,9 +24,16 @@ https://raw.githubusercontent.com/bitctrl/MeshCentral-Agentname2Servername/main/
       "enabled": true,
       "pluginSettings": {
         "agentname2servername": {
-          "meshes" : [
-            "KbvW2V18kiZSNQ5zkT8Qk2s7aADf0MwS1cXUlc$WzqwbwEVYMTopJFR1uxxZzE79",
-            "playground--connect"
+          "#_1": "an empty or undefined include list means, include all",
+          "#_2": "if names are used instead of ids for nodes it must match the (new) agent name",
+          "include": [
+            "mesh//KbvW2V18kiZSNQ5zkT8Qk2s7aADf0MwS1cXUlc$WzqwbwEVYMTopJFR1uxxZzE79",
+            "mesh//playground--connect",
+            "node//Lv13LecdMtfydCiWwW00D17kidGBykQuieOk7zT20@HHsRAqalZRxrV$z1uZZ7f@"
+          ],
+          "exclude": [
+            "node//VV@mK6GmoGTcOxycnmenyYkjYItMDNyoVD9jgVTS8SQlUfiX7twXgXU55QmZ$nK0",
+            "node//meshagent64-playground--connect-004"
           ]
         }
       }
@@ -36,3 +43,12 @@ https://raw.githubusercontent.com/bitctrl/MeshCentral-Agentname2Servername/main/
 
 ```
 
+## Bugs
+
+- Since this plugin is a bit hacky, using it leads to LOOSING THE INFORMATION about the real hostname/computernam/os name.
+- When excluding nodes from an includes mesh, the excluded node might be renamed to its (real) computername when connecting at the same time as other not-excluded nodes.
+- If you load the MeshCentral Web UI in a moment where devices are connecting, you might be unable to change device names - just reload.
+
+## TODO
+
+- Globbing or RegExp
