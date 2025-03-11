@@ -6,17 +6,15 @@
  * 
  * @author  Daniel Hammerschmidt <daniel.hammerschmidt@bitctrl.de>
  * @author  Daniel Hammerschmidt <daniel@redneck-engineering.com>
- * @version 0.0.2
+ * @version 0.0.2+wip
  *********************************************************************/
 
-const { getPluginShortName, getPluginConfig, requirePluginHooks } = require('../pluginhookscheduler');
-
-const PLUGIN_SHORT_NAME = getPluginShortName(__dirname);
-const pluginConfig = getPluginConfig(PLUGIN_SHORT_NAME, () => ({}));
+const { PLUGIN_SHORT_NAME, pluginConfig } = require('../pluginhookscheduler')({
+  __dirname,
+  requiredPluginHooks: ['hook_afterCreateMeshAgent'],
+});
 pluginConfig.include = new Set(pluginConfig.include);
 pluginConfig.exclude = new Set(pluginConfig.exclude);
-
-requirePluginHooks('hook_afterCreateMeshAgent');
 
 let meshserver, webserver;
 
