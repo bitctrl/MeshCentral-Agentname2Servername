@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.3] - 2025-03-12
+### Changed
+- apply api changes from pluginhookscheduler
+
 ## [0.0.2] - 2025-03-10
 ### Added
 - include/exlude lists

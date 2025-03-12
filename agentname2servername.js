@@ -6,7 +6,7 @@
  * 
  * @author  Daniel Hammerschmidt <daniel.hammerschmidt@bitctrl.de>
  * @author  Daniel Hammerschmidt <daniel@redneck-engineering.com>
- * @version 0.0.2+wip
+ * @version 0.0.3
  *********************************************************************/
 
 const { PLUGIN_SHORT_NAME, pluginConfig } = require('../pluginhookscheduler')({
